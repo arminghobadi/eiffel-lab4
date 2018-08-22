@@ -15,9 +15,9 @@ create
 	make
 
 feature { NONE } --constants
-	BLANK_CHAR: CHARACTER = '_';
-	X_CHAR: CHARACTER = 'X';
-	O_CHAR: CHARACTER = 'O';
+	X_CHAR: CHARACTER = 'X'
+	O_CHAR: CHARACTER = 'O'
+	BLANK_CHAR: CHARACTER = '_'
 
 feature { NONE } --user messages
 	msg_err_ok: STRING = "ok"
@@ -36,13 +36,13 @@ feature { NONE } --user messages
 		do Result := nameForChar(c) + " plays next" end
 
 feature { NONE } --state
-	x_name: STRING;
-	o_name: STRING;
-	x_score: INTEGER;
-	o_score: INTEGER;
-	current_turn: CHARACTER;
-	board: ARRAY[CHARACTER];
-	err_msg: STRING;
+	x_name: STRING
+	o_name: STRING
+	x_score: INTEGER
+	o_score: INTEGER
+	current_turn: CHARACTER
+	board: ARRAY[CHARACTER]
+	err_msg: STRING
 	moveHistory: MOVE_HISTORY
 
 feature { ANY } --constructors

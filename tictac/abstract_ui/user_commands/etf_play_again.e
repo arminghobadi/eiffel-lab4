@@ -15,7 +15,6 @@ feature -- command
 	play_again
     	do
     		model.playAgain
-			--model.do_action(create {PLAY_AGAIN_ACTION}.make(model))
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

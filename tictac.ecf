@@ -37,9 +37,6 @@
 			<file_rule>
 				<exclude>^model/actions$</exclude>
 			</file_rule>
-			<file_rule>
-				<exclude>^model/actions$</exclude>
-			</file_rule>
 		</cluster>
 	</target>
 </system>
