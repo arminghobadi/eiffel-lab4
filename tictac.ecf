@@ -32,8 +32,14 @@
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf"/>
 		<cluster name="generated_code" location=".\generated_code\" recursive="true"/>
-		<cluster name="historical_lib" location=".\historical_lib\" recursive="true"/>
 		<cluster name="root" location=".\root\" recursive="true"/>
-		<cluster name="tictac" location=".\tictac\" recursive="true"/>
+		<cluster name="tictac" location=".\tictac\" recursive="true">
+			<file_rule>
+				<exclude>^model/actions$</exclude>
+			</file_rule>
+			<file_rule>
+				<exclude>^model/actions$</exclude>
+			</file_rule>
+		</cluster>
 	</target>
 </system>
