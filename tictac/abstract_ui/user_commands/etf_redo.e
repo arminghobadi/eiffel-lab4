@@ -14,8 +14,9 @@ create
 feature -- command
 	redo
     	do
+    		model.redoaction
 			-- perform some update on the model state
-			model.redo_action
+			--model.redo_action
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

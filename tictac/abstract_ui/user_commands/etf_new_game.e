@@ -17,7 +17,7 @@ feature -- command
 			new_game_precond(player1, player2)
     	do
     		model.newgame (player1, player2)
-			model.do_action(create {NEW_GAME_ACTION}.make(model, player1, player2))
+			--model.do_action(create {NEW_GAME_ACTION}.make(model, player1, player2))
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

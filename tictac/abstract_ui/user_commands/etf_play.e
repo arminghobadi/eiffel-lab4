@@ -17,7 +17,7 @@ feature -- command
 			play_precond(player, press)
     	do
     		model.play(player, press.as_integer_32)
-			model.do_action(create {PLAY_ACTION}.make(model, player, press.as_integer_32))
+			--model.do_action(create {PLAY_ACTION}.make(model, player, press.as_integer_32))
 			etf_cmd_container.on_change.notify ([Current])
     	end
 

@@ -15,7 +15,8 @@ feature -- command
 	undo
     	do
 			-- perform some update on the model state
-			model.undo_action
+			model.undoaction
+			--model.undo_action
 			etf_cmd_container.on_change.notify ([Current])
     	end
 
