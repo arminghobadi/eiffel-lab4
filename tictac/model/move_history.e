@@ -15,7 +15,7 @@ feature { NONE } --state
 	pointer: INTEGER
 
 
-feature { ANY } -- constructors
+feature --{ ANY } -- constructors
 
 	make
 		do
@@ -75,7 +75,7 @@ feature { ANY } -- commands
 
 feature { NONE } -- utils
 
-	array_slice(a_array:ARRAY[STRING]; a_start_index:INTEGER; a_end_index:INTEGER): ARRAY[G]
+	array_slice(a_array:ARRAY[STRING]; a_start_index:INTEGER; a_end_index:INTEGER): ARRAY[STRING]
 		local
 			i:INTEGER
 		do

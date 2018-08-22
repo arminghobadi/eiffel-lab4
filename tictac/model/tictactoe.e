@@ -45,11 +45,13 @@ feature { NONE } --state
 	current_turn: CHARACTER;
 	board: ARRAY[CHARACTER];
 	err_msg: STRING;
+	moveHistory: MOVE_HISTORY
 
 feature { ANY } --constructors
 
 	make
 		do
+			create moveHistory.make --my shit
 			Precursor
 			waiting_state
 		end
