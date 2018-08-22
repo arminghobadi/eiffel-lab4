@@ -32,8 +32,8 @@ feature { NONE } --user messages
 	msg_inst_start: STRING = "start new game"
 	msg_inst_play_again: STRING = "play again or start new game"
 	msg_inst_plays_next(c:CHARACTER): STRING
-		require char_is_valid: is_player_char(c)
-		do Result := name_for_char(c) + " plays next" end
+		require char_is_valid: isPlayerChar(c)
+		do Result := nameForChar(c) + " plays next" end
 
 feature { NONE } --state
 	x_name: STRING;
@@ -44,25 +44,28 @@ feature { NONE } --state
 	board: ARRAY[CHARACTER];
 	err_msg: STRING;
 	moveHistory: MOVE_HISTORY
-	action: STRING
 
 feature { ANY } --constructors
 
 	make
 		do
-			create moveHistory.make --my shit
-			action := ""
-			--Precursor
-			waiting_state
+			create moveHistory.make
+			x_name := ""
+			o_name := ""
+			x_score := 0
+			o_score := 0
+			clearBoard
+			newRound(false)
+			clearErr
 		end
 
-feature --mine
+feature
 	newGame(name_x: STRING; name_o: STRING)
 		do
 			if name_x ~ name_o then
-				set_err(msg_err_same_name)
+				setErr(msg_err_same_name)
 			elseif not name_x.at(1).is_alpha or not name_o.at(1).is_alpha then
-				set_err(msg_err_first_char)
+				setErr(msg_err_first_char)
 			else
 				x_name := name_x
 				o_name := name_o
@@ -71,19 +74,19 @@ feature --mine
 				newRound(false)
 			end
 		end
-	newRound(ensure_round_finished:BOOLEAN)
+	newRound(round_finished:BOOLEAN)
 		do
-			if ensure_round_finished and round_is_in_progress then
-				set_err(msg_err_not_finished)
+			if round_finished and roundInProgress then
+				setErr(msg_err_not_finished)
 			else
-				clear_board
-				current_turn := who_starts
-				clear_err
+				clearBoard
+				current_turn := whoStarts
+				clearErr
 			end
 		end
 	play(player: STRING; press: INTEGER_32)
 		do
-			try_move(player,press)
+			tryMove(player,press)
 		end
 	playAgain
 		do
@@ -92,85 +95,46 @@ feature --mine
 	undoAction
 		do
 			if moveHistory.has_past then
-				action := moveHistory.pop_past
-				clear_position(action.to_integer)
-				switch_turn
+				clearPosition(moveHistory.pop_past.to_integer)
+				switchTurn
 			end
 		end
 
 	redoAction
 		do
 			if moveHistory.has_future then
-				try_move(name_for_char(current_turn), moveHistory.pop_future.to_integer_32)
+				tryMove(nameForChar(current_turn), moveHistory.pop_future.to_integer_32)
 			end
 		end
 
-	waiting_state
+	tryMove (name: STRING; position: INTEGER)
 		do
-			x_name := ""
-			o_name := ""
-			x_score := 0
-			o_score := 0
-			clear_board
-			new_round(false)
-			clear_err
-		end
-
-	new_game(a_x_name: STRING; a_o_name: STRING)
-		do
-			if a_x_name ~ a_o_name then
-				set_err(msg_err_same_name)
-			elseif not a_x_name.at(1).is_alpha or not a_o_name.at(1).is_alpha then
-				set_err(msg_err_first_char)
-			else
-				x_name := a_x_name
-				o_name := a_o_name
-				x_score := 0
-				o_score := 0
-				new_round(false)
-			end
-		end
-
-	new_round(ensure_round_finished:BOOLEAN)
-		do
-			if ensure_round_finished and round_is_in_progress then
-				set_err(msg_err_not_finished)
-			else
-				clear_board
-				current_turn := who_starts
-				clear_err
-			end
-		end
-
-	try_move (name: STRING; position: INTEGER)
-		do
-			if not round_is_in_progress then
-				set_err(msg_err_finished)
-			elseif not is_player_name(name) then
-				set_err(msg_err_no_such_player)
-			elseif char_for_name(name) /= current_turn then
-				set_err(msg_err_wrong_turn)
+			if not roundInProgress then
+				setErr(msg_err_finished)
+			elseif not isPlayerName(name) then
+				setErr(msg_err_no_such_player)
+			elseif charForName(name) /= current_turn then
+				setErr(msg_err_wrong_turn)
 			elseif board[position] /= BLANK_CHAR then
-				set_err(msg_err_taken)
+				setErr(msg_err_taken)
 			else
-				board[position] := char_for_name(name)
-				clear_err
+				board[position] := charForName(name)
+				clearErr
 				moveHistory.add (position.to_hex_string)
-				if is_winner(char_for_name(name)) then
-					increment_score(char_for_name(name))
-					set_err(msg_err_winner)
+				if isWinner(charForName(name)) then
+					incrementScore(charForName(name))
+					setErr(msg_err_winner)
 				end
-				switch_turn
-				--save_state
+				switchTurn
 			end
 		end
 
-	clear_position(a_position: INTEGER)
+	clearPosition(a_position: INTEGER)
 		do
 			board[a_position] := BLANK_CHAR
 		end
 
-	switch_turn
+	switchTurn
 		do
 			if current_turn = X_CHAR then
 				current_turn := O_CHAR
@@ -179,9 +143,9 @@ feature --mine
 			end
 		end
 
-	increment_score (c:CHARACTER)
+	incrementScore (c:CHARACTER)
 		require
-			char_is_valid: is_player_char(c)
+			char_is_valid: isPlayerChar(c)
 		do
 			if c = X_CHAR then
 				x_score := x_score + 1
@@ -190,34 +154,34 @@ feature --mine
 			end
 		end
 
-	clear_board
+	clearBoard
 		do
 			board := create {ARRAY[CHARACTER]}.make_filled (BLANK_CHAR, 1, 9)
 		end
 
-	set_err (msg: STRING)
+	setErr (msg: STRING)
 		do
 			err_msg := msg
 		end
 
-	clear_err
+	clearErr
 		do
 			err_msg := msg_err_ok
 		end
 
-feature --{ ACTION } --queries
+feature --queries
 
-	get_err_msg: STRING
+	getErrMsg: STRING
 		do
 			Result := err_msg
 		end
 
-	in_play: BOOLEAN
+	inPlay: BOOLEAN
 		do
-			Result := round_is_in_progress
+			Result := roundInProgress
 		end
 
-	who_starts: CHARACTER
+	whoStarts: CHARACTER
 		local
 			num_rounds_played: INTEGER
 			half_of_rounds_played: REAL_64
@@ -236,9 +200,9 @@ feature --{ ACTION } --queries
 			end
 		end
 
-	is_winner (c: CHARACTER): BOOLEAN
+	isWinner (c: CHARACTER): BOOLEAN
 		require
-			char_is_valid: is_player_char(c)
+			char_is_valid: isPlayerChar(c)
 		local
 			hor_1st_row: BOOLEAN
 			hor_2nd_row: BOOLEAN
@@ -262,47 +226,47 @@ feature --{ ACTION } --queries
 					  diag_ne_sw or diag_se_nw
 		end
 
-	no_error: BOOLEAN
+	noError: BOOLEAN
 		do
 			Result := err_msg ~ msg_err_ok
 		end
 
-	winner_exists: BOOLEAN
+	winnerExists: BOOLEAN
 		do
-			Result := is_winner(X_CHAR) or is_winner(O_CHAR)
+			Result := isWinner(X_CHAR) or isWinner(O_CHAR)
 		end
 
-	players_exist: BOOLEAN
+	playersExist: BOOLEAN
 		do
 			Result := not x_name.is_empty and not o_name.is_empty
 		end
 
-	                                   is_player_char(c: CHARACTER): BOOLEAN
+	isPlayerChar(c: CHARACTER): BOOLEAN
 		do
 			Result := c = X_CHAR or c = O_CHAR
 		end
 
-	round_is_in_progress: BOOLEAN
+	roundInProgress: BOOLEAN
 		do
-			Result := players_exist and not winner_exists
+			Result := playersExist and not winnerExists
 		end
 
-	name_for_char (c: CHARACTER): STRING
+	nameForChar (c: CHARACTER): STRING
 		require
-			char_is_valid: is_player_char(c)
+			char_is_valid: isPlayerChar(c)
 		do
 			if c = X_CHAR then Result := x_name
 			else Result := o_name end
 		end
 
-	is_player_name (name: STRING): BOOLEAN
+	isPlayerName (name: STRING): BOOLEAN
 		do
 			Result := x_name ~ name or o_name ~ name
 		end
 
-	char_for_name (name: STRING): CHARACTER
+	charForName (name: STRING): CHARACTER
 		require
-			name_exists: is_player_name(name)
+			name_exists: isPlayerName(name)
 		do
 			if x_name ~ name then
 				Result := X_CHAR
@@ -311,18 +275,18 @@ feature --{ ACTION } --queries
 			end
 		end
 
-	next_instruction: STRING
+	nextInstruction: STRING
 		do
-			if not players_exist then
+			if not playersExist then
 				Result := msg_inst_start
-			elseif not winner_exists then
+			elseif not winnerExists then
 				Result := msg_inst_plays_next (current_turn)
 			else
 				Result := msg_inst_play_again
 			end
 		end
 
-	board_as_string: STRING
+	boardAsString: STRING
 		local
 			row_1st: STRING
 			row_2nd: STRING
@@ -342,7 +306,7 @@ feature { ANY } -- output {ETF_MODEL}
 		local
 			double_space_before_arrow: BOOLEAN
 		do
-			double_space_before_arrow := next_instruction ~ msg_inst_start
+			double_space_before_arrow := nextInstruction ~ msg_inst_start
 			create Result.make_empty
 			Result.append("  " + err_msg)
 			if double_space_before_arrow then
@@ -350,8 +314,8 @@ feature { ANY } -- output {ETF_MODEL}
 			else
 				Result.append(": => ")
 			end
-			Result.append(next_instruction + "%N")
-			Result.append(board_as_string)
+			Result.append(nextInstruction + "%N")
+			Result.append(boardAsString)
 			Result.append("  " + x_score.out + ": score for %"" + x_name +"%" (as X)" + "%N")
 			Result.append("  " + o_score.out + ": score for %"" + o_name +"%" (as O)" + "")
 		end
